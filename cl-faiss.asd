@@ -21,5 +21,9 @@
   :pathname "tests"
   :serial t
   :components ((:file "package")
+               (:file "pqueue")
                (:file "tests"))
-  :depends-on (:cl-faiss :fiveam :approx :float-features))
+  :depends-on (:cl-faiss
+               :alexandria
+               :fiveam
+               :approx))
