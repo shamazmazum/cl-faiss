@@ -1,6 +1,6 @@
 (defsystem :cl-faiss
   :name :cl-faiss
-  :version "0.1"
+  :version "0.1.1"
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :description "A wrapper around faiss (k-NN search library)"
   :license "2-clause BSD"
