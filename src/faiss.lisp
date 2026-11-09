@@ -190,8 +190,8 @@ created."))
 
 #+nil
 (serapeum:-> index-search (index (simple-array single-float (* *)) (unsigned-byte 63))
-             (values (simple-array single-float       (*))
-                     (simple-array (unsigned-byte 64) (*))
+             (values (simple-array single-float       (* *))
+                     (simple-array (unsigned-byte 64) (* *))
                      &optional))
 (defun index-search (index vs k)
   "Search for k nearest neighbors to vectors VS in the index. VS is in
@@ -199,10 +199,11 @@ the same form as in INDEX-TRAIN / INDEX-ADD. Two vectors with
 distances and labels are returned."
   (declare (optimize (speed 3)))
   (check-vector-length index vs)
-  (let ((distances (make-array k :element-type 'single-float))
-        (labels    (make-array k :element-type '(unsigned-byte 64))))
-    (with-pointers-to-vector-data ((dptr  distances)
-                                   (lptr  labels)
+  (let* ((n (array-dimension vs 0))
+         (distances (make-array (list n k) :element-type 'single-float))
+         (labels    (make-array (list n k) :element-type '(unsigned-byte 64))))
+    (with-pointers-to-vector-data ((dptr  (sb-ext:array-storage-vector distances))
+                                   (lptr  (sb-ext:array-storage-vector labels))
                                    (vsptr (sb-ext:array-storage-vector vs)))
       (unless (zerop (%index-search
                       (index-ptr index)
@@ -212,10 +213,3 @@ distances and labels are returned."
                :format-control "Search error: ~a"
                :format-arguments (list (get-last-error)))))
     (values distances labels)))
-
-(defun make-vector-type (type n)
-  (sb-kernel:make-array-type
-   (list n)
-   :complexp                 nil
-   :element-type             type
-   :specialized-element-type type))
