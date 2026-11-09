@@ -1,0 +1,46 @@
+name: CI tests
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Checkout Faiss
+        uses: actions/checkout@v7
+        with:
+          repository: facebookresearch/faiss
+          path: faiss
+          ref: v1.15.0
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install build-essential cmake libblas-dev \
+          liblapack-dev libopenblas-dev libopenblas-openmp-dev \
+          liblapacke-dev
+      - name: Build Faiss
+        run: |
+          cd $GITHUB_WORKSPACE/faiss
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=ON \
+          -DFAISS_ENABLE_C_API=ON -DBUILD_TESTING=OFF -DFAISS_ENABLE_GPU=OFF \
+          -DFAISS_ENABLE_PYTHON=OFF ..
+          make -j4 && sudo make install
+      - name: Install roswell
+        run: |
+          curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
+      - name: Install qlot
+        run: |
+          ros install qlot
+      - name: Set Path
+        run: |
+          echo "${HOME}/.roswell/bin" >> $GITHUB_PATH
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE
+          export LD_LIBRARY_PATH=/usr/local/lib
+          qlot install
+          qlot exec ros -l tests/ci.lisp
