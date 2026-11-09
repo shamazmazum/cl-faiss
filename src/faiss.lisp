@@ -193,12 +193,6 @@ created."))
              (values (simple-array single-float       (*))
                      (simple-array (unsigned-byte 64) (*))
                      &optional))
-(sb-c:defknown index-search (index (simple-array single-float (* *)) (unsigned-byte 63))
-    (values (simple-array single-float       (*))
-            (simple-array (unsigned-byte 64) (*)))
-    (sb-c:any)
-  :overwrite-fndb-silently t)
-
 (defun index-search (index vs k)
   "Search for k nearest neighbors to vectors VS in the index. VS is in
 the same form as in INDEX-TRAIN / INDEX-ADD. Two vectors with
@@ -225,12 +219,3 @@ distances and labels are returned."
    :complexp                 nil
    :element-type             type
    :specialized-element-type type))
-
-(sb-c:defoptimizer (index-search sb-c:derive-type) ((index vs k))
-  (declare (ignore index vs))
-  (when (sb-c:constant-lvar-p k)
-    (let ((k (sb-c:lvar-value k)))
-      (sb-kernel:make-values-type
-       (list
-        (make-vector-type (sb-kernel:specifier-type 'single-float)       k)
-        (make-vector-type (sb-kernel:specifier-type '(unsigned-byte 64)) k))))))

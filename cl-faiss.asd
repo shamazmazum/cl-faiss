@@ -7,6 +7,7 @@
   :serial t
   :pathname "src"
   :components ((:file "package")
+               (:file "fndb")
                (:file "faiss"))
   :depends-on (:cffi :serapeum)
   :in-order-to ((test-op (load-op "cl-faiss/tests")))
