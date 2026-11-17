@@ -16,7 +16,7 @@
 (sb-c:defoptimizer (index-search sb-c:derive-type) ((index vs k))
   (declare (ignore index))
   (let* ((vs-type (sb-c::lvar-type vs))
-         (vs-dims (sb-kernel:array-type-dimensions vs-type))
+         (vs-dims (sb-c::array-type-dimensions-or-give-up vs-type nil))
          (n (if (atom vs-dims) '* (first vs-dims)))
          (k (if (sb-c:constant-lvar-p k) (sb-c:lvar-value k) '*)))
     (sb-kernel:make-values-type
